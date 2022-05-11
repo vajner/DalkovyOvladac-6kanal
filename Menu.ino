@@ -140,6 +140,7 @@ void menuPrijimac(int cursorPosition) {
     if(getValRjBtn() == HIGH and zmena) {
       // potvrzeni OK - ulozime hodnotu do pameti
       setIdPrijimace(idStanice);
+      setupRadio();
       inMenu = false;
     }
     if(getValLjBtn() == HIGH) {

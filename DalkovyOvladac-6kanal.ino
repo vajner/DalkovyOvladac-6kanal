@@ -19,7 +19,7 @@
 // =======================================================================================================
 //
 
-  #define DEBUG // if not commented out, Serial.print() is active! For debugging only!!
+  //#define DEBUG // if not commented out, Serial.print() is active! For debugging only!!
   //#define DEBUG_JOY
 
   // Is the radio or IR transmission mode active?
@@ -41,7 +41,8 @@
 
 RF24 radio(9, 10); // CE, CSN
 //const byte addresses[][6] = {"00001", "00002"};
-const byte addresses[][10] = {"VaPet-A", "VaPet-B"};
+//const byte addresses[][10] = {"VaPet-A", "VaPet-B"};
+byte addressa[6] = "VaPe3";
 
 
 // inicializace knihovny displeje 
@@ -106,6 +107,8 @@ String nazevZarizeni="";
 int lBateryVal = 0;
 int rBateryVal = 0;
 byte idPrijimace = 0;
+String prijato;
+boolean intro = true;
 
 struct Data_Info {
   char nazevZarizeni[9]="";
@@ -129,9 +132,8 @@ boolean transmissionState;
 
 void setup() {
   //Serial.begin(9600);                 //  setup serial
-
+  Serial.begin(115200);
   #ifdef DEBUG
-    Serial.begin(115200);
     Serial.println("Inicializace ....... ");
     //printf_begin();
     //delay(3000);
@@ -149,9 +151,21 @@ void setup() {
   pinMode(digitalJoyLSwitch, INPUT);
   pinMode(digitalJoyRSwitch, INPUT);
   pinMode(digitalMenuSw, INPUT_PULLUP);
+
+  if(intro) {
+    zobrazIntro();
+    intro=false;
+  }
 }
 
 void loop() {
+  if (Serial.available() > 0) {
+    String prijato = Serial.readString();  
+    if(prijato.length() > 0) {
+      zpracujPrichoziPrikaz(prijato);
+    }
+  }
+  
   nactiOvladaciPrvky();
   odesliAPrijmiData();
   printDisplay();

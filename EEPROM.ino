@@ -3,12 +3,12 @@
 // Email: vajner@seznam.cz
 //      Nazev         Pozice v pameti
 //--------------------------------------
-#define ID_PRIJIMACE  0
-#define NAZEV_RADIA   1 //-- "VaPet"
-#define KOREKCE_LX    2
-#define KOREKCE_LY    3
-#define KOREKCE_RX    4
-#define KOREKCE_RY    5
+#define ID_PRIJIMACE    0
+#define SIFROVACI_KLIC  1 //-- "VaPet"
+#define KOREKCE_LX      11
+#define KOREKCE_LY      12
+#define KOREKCE_RX      13
+#define KOREKCE_RY      14
 
 
 //#define NAZEV_RADIA "VaPet"
@@ -26,12 +26,17 @@ void setIdPrijimace(byte idPrijimace) {
   EEPROM.write(ID_PRIJIMACE, idPrijimace);
 }
 
-byte getSSIDRadia() {
-  return EEPROM.read(NAZEV_RADIA);
+String getSSIDRadia() {
+  String nazev = TextFromEEPROM(SIFROVACI_KLIC, 10);
+  if(nazev.length() == 0) {
+    nazev = "Nezadano";
+    TextToEEPROM(SIFROVACI_KLIC, 10, nazev);
+  }
+  return nazev;
 }
 
-void setSSIDRadia(byte SSID) {
-  EEPROM.write(NAZEV_RADIA, SSID);
+void setSSIDRadia(String nazev) {
+  TextToEEPROM(SIFROVACI_KLIC, 10, nazev);
 }
 
 int getKorekceLx() {
@@ -101,4 +106,32 @@ int getKorekceRy() {
 
 void setKorekceRy(int korekceRy) {
   EEPROM.write(KOREKCE_RY, korekceRy);
+}
+
+void TextToEEPROM(int adresa, int maxVelikost, String text) {
+  for (int i = 0;i < text.length();i++) {
+    EEPROM.write(adresa + i, (byte)text[i]);
+  }
+  for (int i = text.length();i < maxVelikost;i++) {
+    EEPROM.write(adresa + i, ' ');
+  }  
+}
+
+String TextFromEEPROM(int adresa, int maxVelikost) {
+  String TextFromEEPROM = "";
+  for (int i = 0;i < maxVelikost;i++) {
+    char znak = (char)EEPROM.read(adresa + i);
+    if (isAlphaNumeric(znak) or znak == '-') {
+      TextFromEEPROM = TextFromEEPROM + String(znak);  
+    } else {
+      //Serial.print("nahrazujeme znak:");
+      //Serial.println(znak);
+      TextFromEEPROM = TextFromEEPROM + " ";  
+    }
+    //Serial.println(TextFromEEPROM);
+  }
+  while (TextFromEEPROM[TextFromEEPROM.length() - 1] == ' ') {  
+    TextFromEEPROM = TextFromEEPROM.substring(0,TextFromEEPROM.length() - 1);
+  }
+  return  TextFromEEPROM;
 }
